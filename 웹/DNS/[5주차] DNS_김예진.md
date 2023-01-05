@@ -51,28 +51,30 @@ DNS(=Name) 서버는 도메인과 IP 주소를 저장하고 관리하는 컴퓨�
 3. Sub Domain (=Host)
    `www`, `m`, `store`와 같이 도메인에 따라 사이트의 구성이 달라지는 것
 
-# Name Server (=DNS Server)
+- 작동 과정
+  ![image](https://user-images.githubusercontent.com/68051794/210778773-45d5ad48-1a42-4c24-8045-96680d7878c5.png)
 
-![image](https://user-images.githubusercontent.com/68051794/210776890-9f601234-28e4-4ecb-b39a-694de630d968.png)
+1. 사용자가 웹 브라우저를 열어 주소 표시줄에 www.example.com을 입력한다.
 
-도메인 네임 스페이스의 트리 구조에 대한 정보를 가지고 있는 서버를 네임 서버라고 한다. 데이터베이스의 역할을 하며 요청 처리에 대한 응답을 구현한다.
-하위 조직의 네임 스페이스를 할당하고 관리하는 방식은 각 하위 기관의 관리 책임자에게 위임된다. 예를 들어 www.google.com 도메인은 google.com을 관리하는 네임 서버에 등록되어 있고, google.com 도메인은 .com 도메인을 관리하는 네임 서버에 등록되어 있다. 이러한 위임 구조는 호스트의 증가에 대한 관리를 효율적으로 이루어지게 한다.
+2. www.example.com에 대한 요청은 일반적으로 케이블 인터넷 공급업체, DSL 광대역 공급업체 또는 기업 네트워크 같은 인터넷 서비스 제공업체(ISP)가 관리하는 DNS 해석기로 전송된다.
 
-1. 루트 네임 서버
-   ICANN이 직접 관리하는 서버로, 전 세계에 13개의 루트 네임 서버가 구축되어 있다.
-   TLD 네임 서버의 IP 주소가 등록되어 있다.
+3. ISP의 DNS 해석기는 www.example.com에 대한 요청을 DNS 루트 이름 서버에 전달한다.
 
-2. TLD 네임 서버
-   도메인 등록 기관이 관리하는 서버이다.
-   Authoritative 네임 서버의 IP 주소가 등록되어 있다.
+**RootT DNS란?
+Root DNS는 인터넷의 도메인 네임 시스템의 루트 존이다. 루트 존의 레코드의 요청에 직접 응답하고 적절한 최상위 도메인에 대해 권한이 있는 네임 서버 목록을 반환함으로써 다른 요청에 응답한다. 전세계에 961개의 루트 DNS가 운영되고 있다.**
 
-3. Authoritative 네임 서버 (=SLD 네임 서버)
-   실제 도메인과 IP 주소의 관계를 기록(저장, 변경)하고, 관리하는 권한을 가진 서버이다.
-   일반적으로 도메인/호스팅 업체의 네임서버를 말한다.
+4. ISP의 DNS 해석기는 www.example.com에 대한 요청을 이번에는 .com 도메인의 TLD 이름 서버 중 하나에 다시 전달한다.  
+   .com 도메인의 이름 서버는 example.com 도메인과 연관된 4개의 Amazon Route 53 이름 서버의 이름을 사용하여 요청에 응답한다.
 
-4. Non-Authoritative 네임 서버 (=resolver 서버, recursive 서버, recursor)
-   도메인 이름과 IP 주소가 매핑되어 있지 않고 질의를 통해 IP 주소를 알아내거나 캐시한다.
-   ISP가 제공하는 DNS 서버를 말하며 일반 가정의 경우 이 서버를 사용한다.
+5. ISP의 DNS 해석기는 Amazon Route 53 이름 서버 하나를 선택해 www.example.com에 대한 요청을 해당 이름 서버에 전달한다.
+
+6. Amazon Route 53 이름 서버는 example.com 호스팅 영역에서 www.example.com 레코드를 찾아 웹 서버의 IP 주소 192.0.2.44 등 연관된 값을 받고 이 IP 주소를 DNS 해석기로 반환한다.
+
+7. ISP의 DNS 해석기가 마침내 사용자에게 필요한 IP 주소를 확보하게 됩니다. 해석기는 이 값을 웹 브라우저로 반환한다. 또한, DNS 해석기는 다음에 누군가가 example.com을 탐색할 때 좀 더 빠르게 응답할 수 있도록 사용자가 지정하는 일정 기간 example.com의 8. IP 주소를 캐싱(저장)한다.
+
+8. 웹 브라우저는 DNS 해석기로부터 얻은 IP 주소로 www.example.com에 대한 요청을 전송한다. 여기가 콘텐츠가 있는 곳으로, 예를 들어 웹 사이트 엔드포인트로 구성된 Amazon S3 버킷 또는 Amazon EC2 인스턴스에서 실행되는 웹 서버이다.
+
+9. 192.0.2.44에 있는 웹 서버 또는 그 밖의 리소스는 www.example.com의 웹 페이지를 웹 브라우저로 반환하고, 웹 브라우저는 이 페이지를 표시한다.
 
 # Resolver
 
@@ -88,21 +90,6 @@ DNS(=Name) 서버는 도메인과 IP 주소를 저장하고 관리하는 컴퓨�
 - 반복적 질의(Iterative Query)
 
   - 로컬 DNS 서버 - Root NS, TLD NS(com NS), Sub Domain NS 사이의 통신을 반복적 질의라고 한다.
-
-- 작동 과정
-  ![image](https://user-images.githubusercontent.com/68051794/210777307-684ab4fe-772a-42de-9373-08276167d5c8.png)
-
-1. 브라우저 캐시 확인
-2. hosts 파일과 캐시 확인
-3. 로컬 DNS 서버에 www.mo-rak.com IP 주소 요청
-4. 로컬 DNS 서버는 캐시 확인
-5. Root NS(Name Server)에 IP 주소 요청
-6. Root NS 서버는 IP를 가지고 있지 않고 com NS 주소를 가지고 있어서 TLD NS(com NS) 주소에 IP를 요청
-7. TLD NS(com NS) 서버에 IP 주소 요청
-8. TLD NS(com NS) 서버에도 IP가 없고 Sub Domain NS 주소를 가지고 있어서 Sub Domain NS에 IP 요청
-9. Sub Domain NS 서버에 IP 주소 요청
-10. Sub Domain NS 서버가 IP 주소를 로컬 DNS 서버에 전달
-11. 로컬 DNS 서버가 브라우저에 IP 전달
 
 # 정리
 
