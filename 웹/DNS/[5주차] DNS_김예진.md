@@ -6,10 +6,10 @@
 # 도메인
 
 - 웹사이트 주소의 구조
-  ![image](https://user-images.githubusercontent.com/68051794/210775735-4b85300d-4b6d-4352-9f29-38d2a561462b.png)
-
+  - ![image](https://user-images.githubusercontent.com/68051794/210775735-4b85300d-4b6d-4352-9f29-38d2a561462b.png)
+  
 - 도메인 관리
-  ![image](https://user-images.githubusercontent.com/68051794/210775963-80d161da-0252-4798-bc72-f76492e047e5.png)
+  - ![image](https://user-images.githubusercontent.com/68051794/210775963-80d161da-0252-4798-bc72-f76492e047e5.png)
 
 - ICANN
   국제 인터넷주소 관리 기구이다.
